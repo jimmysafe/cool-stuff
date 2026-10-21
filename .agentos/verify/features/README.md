@@ -1,0 +1,35 @@
+# cool-stuff verification map
+
+This directory is the maintained source for verifying the user-facing behavior of cool-stuff, a Hono Worker on
+Cloudflare Workers whose only surface is HTTP. Read the index, then use the matching feature file as the recipe.
+The harness is `.agentos/verify/scripts/verify.sh` (see `../SKILL.md`), called `$V` below.
+
+## Baseline preconditions
+
+- `V=.agentos/verify/scripts/verify.sh`, run from the repo root.
+- `$V launch` printed `READY` for the revision under test, and `$V doctor` prints `DOCTOR OK`.
+- No seed data is needed: the Worker is stateless and has no bindings.
+- Never drive a `wrangler dev` this run did not start.
+
+## Driving conventions
+
+- Every request goes through `$V drive <evidence-name> <METHOD> <path> [body]`. Name evidence `<feature>-<sub-feature>`.
+- Assert on the `status`, `content-type` and `body` lines of `result.txt`. Status alone is not proof.
+- Treat paths and bodies as literal. Quote them in the shell.
+
+## Proof and skip reporting
+
+- Report the launch mode (`http` or `inproc`) and revision with every proof. They're in each `request.txt`.
+- Proof is `request.txt` + `response.json` + `result.txt` per drive, kept under `$TMPDIR/verify-cool-stuff-evidence/`.
+- In `inproc` mode, report wire-level behavior (HEAD body stripping, header casing, workerd compat flags) as unverified.
+- Do not report a skipped sub-feature as verified through a different one.
+
+## Feature entry contract
+
+Each feature file starts with an H1 and one paragraph, then exactly four H2s in this order: `Sub-features`,
+`How to get to it (user POV)`, `Driving it with verify.sh`, `Gotchas`.
+
+## Features
+
+- [Root greeting](./root-greeting.md): `GET /` (and `HEAD /`) returns the plain-text greeting.
+- [Not found](./not-found.md): any other path, or a method with no route, returns Hono's plain-text 404.
