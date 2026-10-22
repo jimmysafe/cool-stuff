@@ -2,7 +2,13 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "cool-stuff",
   "main": "src/index.ts",
-  "compatibility_date": "2026-10-21"
+  "compatibility_date": "2026-10-21",
+  "build": {
+    "command": "pnpm run build:client"
+  },
+  "assets": {
+    "directory": "./dist/client"
+  }
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
