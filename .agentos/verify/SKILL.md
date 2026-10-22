@@ -1,14 +1,21 @@
 ---
 name: verify-cool-stuff
-description: Launch, drive and prove the HTTP behavior of cool-stuff, a Hono app on Cloudflare Workers (single Worker, `src/index.ts`, no bindings). Reach for it whenever a change to routes, responses or wrangler config needs proof that the Worker answers HTTP requests correctly; works inside the AgentOS sandbox (no TCP listen) via the in-process mode.
+description: Launch, drive and prove the HTTP behavior of cool-stuff, a Hono app on Cloudflare Workers that server-renders a React Router app (single Worker, `src/index.ts`, one static asset, no bindings). Reach for it whenever a change to pages, routes, responses or wrangler config needs proof that the Worker answers HTTP requests correctly; works inside the AgentOS sandbox (no TCP listen) via the in-process mode.
 ---
 
 # verify-cool-stuff
 
 cool-stuff is one Cloudflare Worker (`wrangler.jsonc`: `main: src/index.ts`, no KV/R2/D1/vars)
-built with Hono. Its only user surface is **HTTP**: a client sends a request, the Worker answers.
-There is no UI, CLI or database. Today the routes are `GET /` → `200 text/plain "Hello Hono!"` and
-Hono's default `404 Not Found` for everything else. The feature map is in [`features/`](features/README.md).
+built with Hono. It serves a React app: the Worker renders each page to HTML on the server, and
+`/client.js` (built by esbuild into `dist/client/`, served by Wrangler's asset layer) hydrates it so links
+navigate on the client. The pages are `/` (Homepage) and `/about` (About), from `routes` in `src/app.tsx`.
+`GET`/`HEAD` on any other path gets the app's Not found page with 404; other methods get Hono's plain-text
+`404 Not Found`. There is no CLI or database. The feature map is in [`features/`](features/README.md).
+
+What HTTP proves and what it doesn't: `verify.sh` proves status, content-type and server HTML. Client-side
+navigation (no document reload on click) and hydration are proven by `pnpm run check`
+(`test/navigation.test.tsx`, happy-dom). A real-browser check needs `http` mode and a browser; no browser
+is installed by this skill.
 
 All commands run from the repo root (the worktree). The only helper is `.agentos/verify/scripts/verify.sh`;
 call it as `V=.agentos/verify/scripts/verify.sh` and then `$V <subcommand>`.
@@ -33,11 +40,13 @@ so `wrangler dev` cannot serve there. `verify.sh launch` probes a loopback liste
   `scripts/inproc-fetch.mjs` imports it on Node and calls `default.fetch(new Request(...), env={}, ctx)`,
   the same entry point workerd invokes per request. It's the same code and the same Request/Response objects, on Node instead of workerd.
 
-**Status of `http` mode: written but never executed.** The host where this skill was generated refused loopback listen
-even outside the sandbox, so `wrangler dev` startup, the `Ready on` detection, the doctor's lsof/pgid check and
-process-group cleanup are unproven. The first agent on a host that allows listen should run
-`VERIFY_MODE=http $V launch && $V doctor && $V drive root-get GET /` and then `$V cleanup`, fix what breaks, and delete this paragraph.
+**Status of `http` mode: executed once (2026-10-22, AgentOS sandbox that allowed loopback listen).**
+`wrangler dev` startup, `Ready on` detection, drives with `server-log-tail.txt`, and cleanup worked.
+Two known breaks: the doctor's port check prints `port FAIL ... not in pgid` because `/bin/ps` is not permitted in
+the sandbox (the other doctor lines still pass; read them instead of the final verdict), and `$V launch | tail`
+did not return in that run, so call `launch` without a pipe.
 Forced `http` on a no-listen host fails fast with `http mode: loopback TCP listen refused`.
+`/client.js` comes from the asset layer, which only `http` mode includes. In `inproc` mode report it unverified.
 
 Force a mode with `VERIFY_MODE=http` or `VERIFY_MODE=inproc`. Every artifact records its mode
 (`request.txt` → `mode:`). **Report the mode in the proof.** An `inproc` proof does not cover workerd-only
@@ -56,6 +65,7 @@ $V launch --worktree # tracked + untracked non-ignored files, to check an uncomm
 What it does: wipes and recreates `$VERIFY_RUN_DIR`, exports the source into `src/`, points `HOME`,
 `XDG_*`, `WRANGLER_LOG_PATH`, the npm cache and the pnpm store under `$TMPDIR`, bootstraps `pnpm@10` into
 `$VERIFY_TOOLS_DIR` if none is on PATH (needs the npm registry once), then runs `pnpm install` (log: `logs/install.log`).
+In both modes wrangler runs `pnpm run build:client` first (`build.command`, logged as `[custom build]`), which writes `dist/client/client.js`.
 
 - `http` mode: starts `wrangler dev --ip 127.0.0.1 --port <free> --inspector-port <free> --persist-to <run>/state`
   in its own process group (log: `logs/wrangler.log`). **Ready** = the log contains `Ready on http://127.0.0.1:<port>`
@@ -84,25 +94,25 @@ Run it first whenever anything looks off.
 
 ```sh
 $V drive <evidence-name> <METHOD> <path> [body]
-$V drive root-get GET /
-$V drive root-head HEAD /
-$V drive nf-path GET /does-not-exist
+$V drive pages-home GET /
+$V drive pages-head HEAD /about
+$V drive nf-path GET /nope
 $V drive nf-post POST / 'hello'
 ```
 
 Same command in both modes. `http` uses `curl` against the instance; `inproc` uses
 `node .agentos/verify/scripts/inproc-fetch.mjs <run>/bundle/index.js <METHOD> <path> [body]`
 (you can call it directly for ad-hoc checks; it prints `{status,statusText,headers,body}` JSON).
-The handles are **route paths and methods**. Routes are defined in `src/index.ts` (`app.get(...)`, etc.).
-When a route is added, drive it the same way and add it to the feature map.
+The handles are **route paths and methods**. Pages are the `routes` list in `src/app.tsx`; Hono routes, if any,
+are registered on `app` in `src/index.ts`. When a page or route is added, drive it the same way and add it to the feature map.
 
 Prints and saves `result.txt`:
 
 ```
 status: 200
-content-type: text/plain;charset=UTF-8
-body-bytes: 11
-body: Hello Hono!
+content-type: text/html; charset=UTF-8
+body-bytes: 262
+body: <!doctype html> ... <div id="root"><main><h1>About</h1><a href="/" data-discover="true">Homepage</a></main></div> ...
 ```
 
 ## Evidence

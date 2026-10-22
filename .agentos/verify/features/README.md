@@ -1,14 +1,14 @@
 # cool-stuff verification map
 
 This directory is the maintained source for verifying the user-facing behavior of cool-stuff, a Hono Worker on
-Cloudflare Workers whose only surface is HTTP. Read the index, then use the matching feature file as the recipe.
+Cloudflare Workers that serves a server-rendered React app over HTTP. Read the index, then use the matching feature file as the recipe.
 The harness is `.agentos/verify/scripts/verify.sh` (see `../SKILL.md`), called `$V` below.
 
 ## Baseline preconditions
 
 - `V=.agentos/verify/scripts/verify.sh`, run from the repo root.
 - `$V launch` printed `READY` for the revision under test, and `$V doctor` prints `DOCTOR OK`.
-- No seed data is needed: the Worker is stateless and has no bindings.
+- No seed data is needed: the Worker is stateless and has no bindings. Its only static asset is `/client.js`.
 - Never drive a `wrangler dev` this run did not start.
 
 ## Driving conventions
@@ -31,5 +31,5 @@ Each feature file starts with an H1 and one paragraph, then exactly four H2s in 
 
 ## Features
 
-- [Root greeting](./root-greeting.md): `GET /` (and `HEAD /`) returns the plain-text greeting.
-- [Not found](./not-found.md): any other path, or a method with no route, returns Hono's plain-text 404.
+- [Pages](./pages.md): `/` (Homepage) and `/about` (About), server-rendered React pages with client-side navigation between them.
+- [Not found](./not-found.md): any other path gets the app's Not found page with 404; a method other than GET or HEAD gets Hono's plain-text 404.
