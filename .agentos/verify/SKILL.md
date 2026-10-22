@@ -1,14 +1,17 @@
 ---
 name: verify-cool-stuff
-description: Launch, drive and prove the HTTP behavior of cool-stuff, a Hono app on Cloudflare Workers (single Worker, `src/index.ts`, no bindings). Reach for it whenever a change to routes, responses or wrangler config needs proof that the Worker answers HTTP requests correctly; works inside the AgentOS sandbox (no TCP listen) via the in-process mode.
+description: Launch, drive and prove the behavior of cool-stuff, a Hono app on Cloudflare Workers that server-renders React Router pages (single Worker, `src/index.ts`, static assets in `dist/client`, no bindings). Reach for it whenever a change to pages, routes, responses or wrangler config needs proof over HTTP and in a real headless browser; works inside the AgentOS sandbox (no TCP listen) via the in-process mode.
 ---
 
 # verify-cool-stuff
 
 cool-stuff is one Cloudflare Worker (`wrangler.jsonc`: `main: src/index.ts`, no KV/R2/D1/vars)
-built with Hono. Its only user surface is **HTTP**: a client sends a request, the Worker answers.
-There is no UI, CLI or database. Today the routes are `GET /` → `200 text/plain "Hello Hono!"` and
-Hono's default `404 Not Found` for everything else. The feature map is in [`features/`](features/README.md).
+built with Hono. `app.get('*')` server-renders React Router pages (`src/app/routes.tsx`), and
+`/assets/client.js` hydrates them. Workers Static Assets serves `dist/client/`, which `build.command`
+(`pnpm run build:client`) writes before each wrangler build. The surfaces are **HTTP** and the pages in a **browser**.
+There is no CLI or database. Today the routes are `GET /` (Home, 200 HTML), `GET /about` (About, 200 HTML),
+`GET` on any other path (Not found, 404 HTML), and Hono's text `404 Not Found` for every non-GET request.
+The feature map is in [`features/`](features/README.md).
 
 All commands run from the repo root (the worktree). The only helper is `.agentos/verify/scripts/verify.sh`;
 call it as `V=.agentos/verify/scripts/verify.sh` and then `$V <subcommand>`.
@@ -36,7 +39,7 @@ so `wrangler dev` cannot serve there. `verify.sh launch` probes a loopback liste
 **Status of `http` mode: written but never executed.** The host where this skill was generated refused loopback listen
 even outside the sandbox, so `wrangler dev` startup, the `Ready on` detection, the doctor's lsof/pgid check and
 process-group cleanup are unproven. The first agent on a host that allows listen should run
-`VERIFY_MODE=http $V launch && $V doctor && $V drive root-get GET /` and then `$V cleanup`, fix what breaks, and delete this paragraph.
+`VERIFY_MODE=http $V launch && $V doctor && $V drive home-get GET /` and then `$V cleanup`, fix what breaks, and delete this paragraph.
 Forced `http` on a no-listen host fails fast with `http mode: loopback TCP listen refused`.
 
 Force a mode with `VERIFY_MODE=http` or `VERIFY_MODE=inproc`. Every artifact records its mode
@@ -84,8 +87,8 @@ Run it first whenever anything looks off.
 
 ```sh
 $V drive <evidence-name> <METHOD> <path> [body]
-$V drive root-get GET /
-$V drive root-head HEAD /
+$V drive home-get GET /
+$V drive home-head HEAD /
 $V drive nf-path GET /does-not-exist
 $V drive nf-post POST / 'hello'
 ```
@@ -99,11 +102,32 @@ When a route is added, drive it the same way and add it to the feature map.
 Prints and saves `result.txt`:
 
 ```
-status: 200
-content-type: text/plain;charset=UTF-8
-body-bytes: 11
-body: Hello Hono!
+status: 404
+content-type: text/plain; charset=UTF-8
+body-bytes: 13
+body: 404 Not Found
 ```
+
+`drive` reaches the Worker only. It never serves static assets, so `GET /assets/client.js` gets the 404 HTML page
+in `inproc` mode. Rendering, hydration and client navigation need the browser check below.
+
+## Browser
+
+`scripts/browser-check.mjs <bundle/index.js> <assets-dir> <evidence-dir>` is a real headless Chromium run with no TCP server.
+`page.route('**/*')` answers every request to the fake origin `http://cool-stuff.test` the way Cloudflare does:
+a path that is a file under `<assets-dir>` comes from disk, anything else goes to the bundle's `default.fetch`.
+It loads `/`, `/about` and `/nope`, waits for hydration (`window.__reactRouterVersion` set and React fibers on the links),
+clicks the links, and asserts the heading, the URL, the status, that `window.__marker` survives a click and that no
+document request happens. It also reloads `/about` and fails on page errors and console errors.
+It writes `browser-result.txt` (one PASS/FAIL line per assertion) and a screenshot per page, and exits 1 on any FAIL.
+
+It needs the inproc bundle, so launch with `VERIFY_MODE=inproc`. The setup commands and the run line are in
+[`features/README.md`](features/README.md#browser-preconditions): `playwright-core@1.56.1` in `$TMPDIR/pw`
+(env `PLAYWRIGHT_CORE`) and Playwright's Chromium headless shell build 1194 (env `HEADLESS_SHELL`), launched with
+`--single-process`. Neither is a repo dependency. The assets dir is `<run>/src/dist/client`, which the dry-run's
+`build.command` produces. Evidence goes to `$TMPDIR/verify-cool-stuff-evidence/browser-pages/`.
+
+A run with an empty assets dir is the negative control: the hydration, marker and document-request lines fail.
 
 ## Evidence
 
@@ -144,6 +168,7 @@ Run it after every attempt, failed ones too; it's safe when nothing is running. 
 - `scripts/verify.sh`: `launch [<rev>|--worktree] | doctor | drive <name> <METHOD> <path> [body] | cleanup | paths`.
   Env: `VERIFY_MODE` (auto|http|inproc), `VERIFY_RUN_DIR`, `VERIFY_EVIDENCE_DIR`, `VERIFY_TOOLS_DIR`, `VERIFY_PORT`.
 - `scripts/inproc-fetch.mjs <bundle/index.js> <METHOD> <path> [body]`: calls the bundle's fetch handler and prints JSON.
+- `scripts/browser-check.mjs <bundle/index.js> <assets-dir> <evidence-dir>`: headless browser check of the pages (see Browser).
 
 ## Sandbox notes
 
