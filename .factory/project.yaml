@@ -1,0 +1,3 @@
+verification_skill: .claude/skills/verify-cool-stuff
+# set by hand: the skill was run end to end (evidence in $TMPDIR/verify-cool-stuff-evidence)
+verification_skill_last_run: 2026-10-29
