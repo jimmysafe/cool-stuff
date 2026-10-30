@@ -11,7 +11,8 @@ export WRANGLER_SEND_METRICS=false CI=1 NO_COLOR=1
 
 die() { echo "verify: $*" >&2; exit 1; }
 st() { cat "$RUN_DIR/$1" 2>/dev/null || true; }
-alive() { [ -n "$(st pid)" ] && kill -0 "$(st pid)" 2>/dev/null; }
+# Sandboxes may deny signalling our own child (EPERM); only "No such process" means it is gone.
+alive() { [ -n "$(st pid)" ] && [[ "$(kill -0 "$(st pid)" 2>&1)" != *"No such process"* ]]; }
 free_port() { node -e 's=require("net").createServer().listen(0,"127.0.0.1",()=>{console.log(s.address().port);s.close()})'; }
 
 launch() {
@@ -43,9 +44,9 @@ doctor() {
   echo "revision serving: $(st revision | tr -d '\n')   worktree HEAD: $(git -C "$REPO" rev-parse --short HEAD)"
   alive && echo "pid $(st pid) alive" || { echo "FAIL: no live instance from $RUN_DIR"; ok=0; }
   if [ -n "$url" ]; then
-    local owner; owner="$(lsof -nP -t -iTCP:"${url##*:}" -sTCP:LISTEN 2>/dev/null | head -1)"
-    if [ -n "$owner" ] && [ "$(ps -o pgid= -p "$owner" | tr -d ' ')" = "$(st pid)" ]; then echo "port ${url##*:} owned by our process group"
-    else echo "FAIL: port ${url##*:} not owned by our process group (owner pid: ${owner:-none})"; ok=0; fi
+    local pgid; pgid="$(lsof -nP -a -iTCP:"${url##*:}" -sTCP:LISTEN -Fg 2>/dev/null | sed -n 's/^g//p' | head -1)"
+    if [ "$pgid" = "$(st pid)" ]; then echo "port ${url##*:} owned by our process group"
+    else echo "FAIL: port ${url##*:} not owned by our process group (owner pgid: ${pgid:-none})"; ok=0; fi
     curl -s -o /dev/null -w "GET / -> %{http_code}\n" "$url/" || { echo "FAIL: $url not answering"; ok=0; }
   fi
   [ $ok = 1 ] && echo "DOCTOR OK" || { echo "DOCTOR FAIL"; exit 1; }
