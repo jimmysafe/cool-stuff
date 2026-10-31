@@ -1,0 +1,190 @@
+{
+  "commit_sha": "298b269499b46bc1bbe08c6fd50d2ea4f05d3006",
+  "valid_pairs": 8,
+  "invalid_pairs": 25,
+  "negative_checks": 4,
+  "requests": 70,
+  "checks": [
+    {
+      "case": "ok",
+      "body": "{\"a\": 2, \"b\": 3}",
+      "result": "PASS: both 200, expected sum and product"
+    },
+    {
+      "case": "negative",
+      "body": "{\"a\": -7, \"b\": 3}",
+      "result": "PASS: both 200, expected sum and product"
+    },
+    {
+      "case": "both-negative",
+      "body": "{\"a\": -4, \"b\": -9}",
+      "result": "PASS: both 200, expected sum and product"
+    },
+    {
+      "case": "zero",
+      "body": "{\"a\": 0, \"b\": 17}",
+      "result": "PASS: both 200, expected sum and product"
+    },
+    {
+      "case": "fraction",
+      "body": "{\"a\": 1.5, \"b\": 2.25}",
+      "result": "PASS: both 200, expected sum and product"
+    },
+    {
+      "case": "exponent",
+      "body": "{\"a\": 1e+100, \"b\": 1e+100}",
+      "result": "PASS: both 200, expected sum and product"
+    },
+    {
+      "case": "extra",
+      "body": "{\"a\": 8, \"b\": 9, \"extra\": \"ignored\"}",
+      "result": "PASS: both 200, expected sum and product"
+    },
+    {
+      "case": "reversed",
+      "body": "{\"b\": 12, \"a\": 3}",
+      "result": "PASS: both 200, expected sum and product"
+    },
+    {
+      "case": "missing",
+      "body": "{\"a\":2}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "missing-a",
+      "body": "{\"b\":3}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "empty-object",
+      "body": "{}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "string",
+      "body": "{\"a\":\"2\",\"b\":3}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "string-b",
+      "body": "{\"a\":2,\"b\":\"3\"}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "bool-a",
+      "body": "{\"a\":true,\"b\":3}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "bool-b",
+      "body": "{\"a\":2,\"b\":false}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "null-a",
+      "body": "{\"a\":null,\"b\":3}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "null-b",
+      "body": "{\"a\":2,\"b\":null}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "array-a",
+      "body": "{\"a\":[],\"b\":3}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "object-b",
+      "body": "{\"a\":2,\"b\":{}}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "null",
+      "body": "null",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "array",
+      "body": "[2,3]",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "number",
+      "body": "42",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "string-root",
+      "body": "\"hello\"",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "boolean-root",
+      "body": "true",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "infinity-a",
+      "body": "{\"a\":1e999,\"b\":3}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "infinity-b",
+      "body": "{\"a\":2,\"b\":-1e999}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "malformed",
+      "body": "{\"a\":",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "trailing-comma",
+      "body": "{\"a\":2,\"b\":3,}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "nan",
+      "body": "{\"a\":NaN,\"b\":3}",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "plain",
+      "body": "hello",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "empty",
+      "body": "",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "whitespace",
+      "body": "  \n ",
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "no-body",
+      "body": null,
+      "result": "PASS: byte-identical 400 error payload and content-type"
+    },
+    {
+      "case": "sum-get",
+      "result": "PASS: 404; route does not over-match"
+    },
+    {
+      "case": "multiply-get",
+      "result": "PASS: 404; route does not over-match"
+    },
+    {
+      "case": "multiply-put",
+      "result": "PASS: 404; route does not over-match"
+    },
+    {
+      "case": "multiply-unmatched",
+      "result": "PASS: 404; route does not over-match"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+PASS: 8 valid pairs, 25 invalid pairs, 4 negative checks; 70 HTTP requests; statuses, content-types, payloads and server traces asserted.
