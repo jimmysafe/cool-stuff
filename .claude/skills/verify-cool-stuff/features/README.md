@@ -27,3 +27,4 @@ Each feature file has an H1, one paragraph of user-visible behavior, then four H
 
 - [Root greeting](./root-greeting.md): `GET /` (and `HEAD /`) returns the plain-text greeting.
 - [Not found](./not-found.md): any unmatched path or method gets Hono's plain-text 404.
+- [Sum](./sum.md): `POST /sum` with `{"a", "b"}` returns their sum, bad input gets a JSON `400`.
