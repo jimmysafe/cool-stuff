@@ -1,0 +1,122 @@
+{
+  "commit_sha": "3d65991ad67443df05a3e69b552fa99b69f114f9",
+  "checks": [
+    {
+      "case": "sum-integers",
+      "status": 200,
+      "body": "{\"sum\":5}",
+      "pass": true
+    },
+    {
+      "case": "sum-zero",
+      "status": 200,
+      "body": "{\"sum\":0}",
+      "pass": true
+    },
+    {
+      "case": "sum-negative-decimal",
+      "status": 200,
+      "body": "{\"sum\":-1.25}",
+      "pass": true
+    },
+    {
+      "case": "missing-a",
+      "status": 400,
+      "body": "{\"error\":\"\\\"a\\\" and \\\"b\\\" must be numbers\"}",
+      "pass": true
+    },
+    {
+      "case": "missing-b",
+      "status": 400,
+      "body": "{\"error\":\"\\\"a\\\" and \\\"b\\\" must be numbers\"}",
+      "pass": true
+    },
+    {
+      "case": "missing-both",
+      "status": 400,
+      "body": "{\"error\":\"\\\"a\\\" and \\\"b\\\" must be numbers\"}",
+      "pass": true
+    },
+    {
+      "case": "string-a",
+      "status": 400,
+      "body": "{\"error\":\"\\\"a\\\" and \\\"b\\\" must be numbers\"}",
+      "pass": true
+    },
+    {
+      "case": "string-b",
+      "status": 400,
+      "body": "{\"error\":\"\\\"a\\\" and \\\"b\\\" must be numbers\"}",
+      "pass": true
+    },
+    {
+      "case": "boolean-value",
+      "status": 400,
+      "body": "{\"error\":\"\\\"a\\\" and \\\"b\\\" must be numbers\"}",
+      "pass": true
+    },
+    {
+      "case": "null-value",
+      "status": 400,
+      "body": "{\"error\":\"\\\"a\\\" and \\\"b\\\" must be numbers\"}",
+      "pass": true
+    },
+    {
+      "case": "array-value",
+      "status": 400,
+      "body": "{\"error\":\"\\\"a\\\" and \\\"b\\\" must be numbers\"}",
+      "pass": true
+    },
+    {
+      "case": "object-value",
+      "status": 400,
+      "body": "{\"error\":\"\\\"a\\\" and \\\"b\\\" must be numbers\"}",
+      "pass": true
+    },
+    {
+      "case": "null-body",
+      "status": 400,
+      "body": "{\"error\":\"\\\"a\\\" and \\\"b\\\" must be numbers\"}",
+      "pass": true
+    },
+    {
+      "case": "array-body",
+      "status": 400,
+      "body": "{\"error\":\"\\\"a\\\" and \\\"b\\\" must be numbers\"}",
+      "pass": true
+    },
+    {
+      "case": "malformed-json",
+      "status": 400,
+      "body": "{\"error\":\"body must be valid JSON\"}",
+      "pass": true
+    },
+    {
+      "case": "empty-body",
+      "status": 400,
+      "body": "{\"error\":\"body must be valid JSON\"}",
+      "pass": true
+    },
+    {
+      "case": "unmatched-method",
+      "status": 404,
+      "body": "404 Not Found",
+      "pass": true
+    },
+    {
+      "case": "unmatched-path",
+      "status": 404,
+      "body": "404 Not Found",
+      "pass": true
+    },
+    {
+      "case": "explicit-json-content-type",
+      "status": 200,
+      "body": {
+        "sum": 5
+      },
+      "pass": true
+    }
+  ],
+  "passed": 19
+}
