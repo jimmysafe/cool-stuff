@@ -30,6 +30,10 @@ app.get('/version', (c) => {
   return c.json({ name, version })
 })
 
+app.get('/ping', (c) => {
+  return c.json({ pong: true })
+})
+
 app.post('/sum', binaryOp('sum', (a, b) => a + b))
 app.post('/multiply', binaryOp('product', (a, b) => a * b))
 
