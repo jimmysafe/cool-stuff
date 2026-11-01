@@ -1,0 +1,30 @@
+Command: bash scripts/smoke.sh
+PORT=64856
+ok   GET / status
+ok   GET / body
+ok   GET /version status
+ok   GET /version body
+ok   GET /ping status
+ok   GET /ping body
+ok   GET /does-not-exist status
+ok   POST /sum status
+ok   POST /sum body
+ok   POST /multiply status
+ok   POST /multiply body
+ok   POST /sum {"a":2} status
+ok   POST /sum {"a":2} error body
+ok   POST /multiply {"a":2} status matches /sum
+ok   POST /multiply {"a":2} body matches /sum
+ok   POST /sum {"a":"2","b":3} status
+ok   POST /sum {"a":"2","b":3} error body
+ok   POST /multiply {"a":"2","b":3} status matches /sum
+ok   POST /multiply {"a":"2","b":3} body matches /sum
+ok   POST /sum {"a": status
+ok   POST /sum {"a": error body
+ok   POST /multiply {"a": status matches /sum
+ok   POST /multiply {"a": body matches /sum
+ok   POST /sum null status
+ok   POST /sum null error body
+ok   POST /multiply null status matches /sum
+ok   POST /multiply null body matches /sum
+Exit code: 0
