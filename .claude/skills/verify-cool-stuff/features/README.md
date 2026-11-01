@@ -29,3 +29,4 @@ Each feature file has an H1, one paragraph of user-visible behavior, then four H
 - [Not found](./not-found.md): any unmatched path or method gets Hono's plain-text 404.
 - [Sum](./sum.md): `POST /sum` with `{"a", "b"}` returns their sum, bad input gets a JSON `400`.
 - [Multiply](./multiply.md): `POST /multiply` with `{"a", "b"}` returns their product, bad input gets the same JSON `400` as `/sum`.
+- [Version](./version.md): `GET /version` returns `{"version"}` matching package.json.
