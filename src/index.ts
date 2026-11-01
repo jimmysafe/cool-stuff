@@ -1,5 +1,5 @@
 import { Hono, type Context } from 'hono'
-import { version } from '../package.json'
+import { name, version } from '../package.json'
 
 const binaryOp = (key: string, fn: (a: number, b: number) => number) => async (c: Context) => {
   let body
@@ -24,6 +24,10 @@ app.get('/', (c) => {
 
 app.get('/health', (c) => {
   return c.json({ status: 'ok', version })
+})
+
+app.get('/version', (c) => {
+  return c.json({ name, version })
 })
 
 app.post('/sum', binaryOp('sum', (a, b) => a + b))
