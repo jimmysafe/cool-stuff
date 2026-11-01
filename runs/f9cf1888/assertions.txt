@@ -1,1 +1,4 @@
-PASS commit=45db2b5698573109a6d991aea993dfaf6e7bf614; tracked app files unchanged. GET /version: 200 application/json, exact body version=0.1.0; GET /health same version. POST /version: 404 text/plain, 404 Not Found. Source confirms existing package.json import shared by /health and /version. Runtime: wrangler dev (workerd); XDG_CONFIG_HOME=/private/tmp/verify-cool-stuff-f9cf1888-config.
+PASS: GET /version HTTP 200 application/json; exact JSON equality with package.json: {"name": "cool-stuff", "version": "0.1.0"}
+PASS: POST /version HTTP 404 text/plain, body 404 Not Found; server logs match both requests.
+PASS: /health uses the same imported version and returned matching value.
+PASS: source uses existing package.json import, no hardcoded response strings; revision c42c589, no dirty source.

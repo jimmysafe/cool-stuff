@@ -1,0 +1,58 @@
+commit: c42c58963cc2724ccaf683e907e13705fe8128ff
+Tracked source unchanged.
+
+package.json:
+{
+  "name": "cool-stuff",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+  },
+  "dependencies": {
+    "hono": "^4.13.13"
+  },
+  "devDependencies": {
+    "wrangler": "^4.110.0"
+  }
+}
+
+src/index.ts:
+import { Hono, type Context } from 'hono'
+import { name, version } from '../package.json'
+
+const binaryOp = (key: string, fn: (a: number, b: number) => number) => async (c: Context) => {
+  let body
+  try {
+    body = await c.req.json()
+  } catch {
+    return c.json({ error: 'body must be valid JSON' }, 400)
+  }
+  const a = body?.a
+  const b = body?.b
+  if (!Number.isFinite(a) || !Number.isFinite(b)) {
+    return c.json({ error: '"a" and "b" must be numbers' }, 400)
+  }
+  return c.json({ [key]: fn(a, b) })
+}
+
+const app = new Hono()
+
+app.get('/', (c) => {
+  return c.text('Hello Hono!')
+})
+
+app.get('/health', (c) => {
+  return c.json({ status: 'ok', version })
+})
+
+app.get('/version', (c) => {
+  return c.json({ name, version })
+})
+
+app.post('/sum', binaryOp('sum', (a, b) => a + b))
+app.post('/multiply', binaryOp('product', (a, b) => a * b))
+
+export default app
