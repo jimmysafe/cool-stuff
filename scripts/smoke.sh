@@ -18,6 +18,7 @@ check "GET /version status" 200 "$(curl -s -o /dev/null -w '%{http_code}' "$URL/
 check "GET /version body" "{\"name\":\"$N\",\"version\":\"$V\"}" "$(curl -s "$URL/version")"
 check "GET /ping status" 200 "$(curl -s -o /dev/null -w '%{http_code}' "$URL/ping")"
 check "GET /ping body" '{"pong":true}' "$(curl -s "$URL/ping")"
+check "POST /ping status" 404 "$(curl -s -o /dev/null -w '%{http_code}' -X POST "$URL/ping")"
 check "GET /does-not-exist status" 404 "$(curl -s -o /dev/null -w '%{http_code}' "$URL/does-not-exist")"
 sum() { curl -s -X POST -H 'content-type: application/json' --data-binary "$@" "$URL/sum"; }
 check "POST /sum status" 200 "$(sum '{"a":2,"b":3}' -o /dev/null -w '%{http_code}')"
