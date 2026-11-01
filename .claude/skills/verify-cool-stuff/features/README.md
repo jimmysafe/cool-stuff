@@ -30,3 +30,4 @@ Each feature file has an H1, one paragraph of user-visible behavior, then four H
 - [Sum](./sum.md): `POST /sum` with `{"a", "b"}` returns their sum, bad input gets a JSON `400`.
 - [Multiply](./multiply.md): `POST /multiply` with `{"a", "b"}` returns their product, bad input gets the same JSON `400` as `/sum`.
 - [Version](./version.md): `GET /version` returns `{"name","version"}` matching package.json.
+- [Ping](./ping.md): `GET /ping` returns `{"pong":true}`.
