@@ -26,6 +26,10 @@ app.get('/health', (c) => {
   return c.json({ status: 'ok', version })
 })
 
+app.get('/version', (c) => {
+  return c.json({ version })
+})
+
 app.post('/sum', binaryOp('sum', (a, b) => a + b))
 app.post('/multiply', binaryOp('product', (a, b) => a * b))
 
