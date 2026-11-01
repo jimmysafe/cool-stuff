@@ -1,0 +1,5 @@
+commit: 829090c66b68c248b6794999513b547926913ea7
+PASS ping-get: status, content-type, body, server request log and clean serving revision
+PASS ping-post: status, content-type, body, server request log and clean serving revision
+PASS ping-sub: status, content-type, body, server request log and clean serving revision
+PASS tested source and smoke script unchanged from HEAD
