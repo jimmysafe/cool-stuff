@@ -1,0 +1,4 @@
+status: 200
+content-type: application/json
+body-bytes: 19
+body: {"version":"0.1.0"}
