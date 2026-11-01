@@ -1,0 +1,1 @@
+PASS: clean tracked revision f4955b3ca1258e0d3f3061799cfb8423df0364eb; GET /ping HTTP 200, application/json, exact JSON {"pong":true}; POST /ping HTTP 404; matching server logs.

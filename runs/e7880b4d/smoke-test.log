@@ -1,11 +1,11 @@
-Command: bash scripts/smoke.sh
-PORT=64856
+command: PORT=65413 ./scripts/smoke.sh
 ok   GET / status
 ok   GET / body
 ok   GET /version status
 ok   GET /version body
 ok   GET /ping status
 ok   GET /ping body
+ok   POST /ping status
 ok   GET /does-not-exist status
 ok   POST /sum status
 ok   POST /sum body
@@ -27,4 +27,5 @@ ok   POST /sum null status
 ok   POST /sum null error body
 ok   POST /multiply null status matches /sum
 ok   POST /multiply null body matches /sum
-Exit code: 0
+
+exit_code: 0
