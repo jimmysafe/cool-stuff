@@ -12,9 +12,10 @@ check() { # <name> <expected> <actual>
 }
 check "GET / status" 200 "$(curl -s -o /dev/null -w '%{http_code}' "$URL/")"
 check "GET / body" "Hello Hono!" "$(curl -s "$URL/")"
+N=$(node -p "require('./package.json').name")
 V=$(node -p "require('./package.json').version")
 check "GET /version status" 200 "$(curl -s -o /dev/null -w '%{http_code}' "$URL/version")"
-check "GET /version body" "{\"version\":\"$V\"}" "$(curl -s "$URL/version")"
+check "GET /version body" "{\"name\":\"$N\",\"version\":\"$V\"}" "$(curl -s "$URL/version")"
 check "GET /does-not-exist status" 404 "$(curl -s -o /dev/null -w '%{http_code}' "$URL/does-not-exist")"
 sum() { curl -s -X POST -H 'content-type: application/json' --data-binary "$@" "$URL/sum"; }
 check "POST /sum status" 200 "$(sum '{"a":2,"b":3}' -o /dev/null -w '%{http_code}')"
